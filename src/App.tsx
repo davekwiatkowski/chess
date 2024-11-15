@@ -1,35 +1,49 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useCallback, useMemo, useState } from 'react';
+import { ChessBoard } from './components/ChessBoard';
+import { AppContext, defaultAppContext } from './context/AppContext';
+import { IPiece } from './types/IPiece';
+import { getPossibleMoves } from './utils/getPossibleMoves';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedPiece, setSelectedPiece] = useState<IPiece | null>();
+
+  const possibleMoves = useMemo(
+    () => getPossibleMoves(selectedPiece),
+    [selectedPiece]
+  );
+
+  const handleSelectedPieceChange = useCallback((piece: IPiece | null) => {
+    setSelectedPiece(piece);
+    console.log(piece);
+  }, []);
+
+  const movePiece = useCallback(
+    (row: number, col: number) => {
+      if (!selectedPiece) {
+        return;
+      }
+      selectedPiece.position.row = row;
+      selectedPiece.position.col = col;
+      setSelectedPiece(null);
+    },
+    [selectedPiece]
+  );
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <AppContext.Provider
+      value={{
+        ...defaultAppContext,
+        selectedPiece,
+        setSelectedPiece: handleSelectedPieceChange,
+        possibleMoves,
+        movePiece,
+      }}
+    >
+      <div className="h-screen flex justify-center items-center flex-col bg-green-950 text-yellow-100">
+        <ChessBoard></ChessBoard>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </AppContext.Provider>
+  );
 }
 
-export default App
+export default App;

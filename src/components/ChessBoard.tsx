@@ -28,14 +28,14 @@ export const ChessBoard: FC = () => {
           </div>
           <div className="grid grid-cols-8 m-[1px] grid-rows-8 absolute top-0 left-0">
             {pieces.map((piece, index) => {
+              if (piece.isCaptured) return;
               return (
                 <div
                   key={index}
                   style={{
-                    top: piece.position.row * 64 + 'px',
-                    left: piece.position.col * 64 + 'px',
+                    transform: `translate(${piece.col * 64}px, ${piece.row * 64}px)`,
                   }}
-                  className={`absolute w-16 h-16 flex justify-center items-center`}
+                  className={`absolute w-16 h-16 flex justify-center items-center transition-transform duration-300`}
                 >
                   <Piece piece={piece} />
                 </div>

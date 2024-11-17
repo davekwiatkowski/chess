@@ -12,7 +12,7 @@ export const Tile: FC<{
 
   const isBlack = useMemo(
     () => (row % 2 === 1 ? index % 2 === 0 : index % 2 === 1),
-    [row, index]
+    [index, row]
   );
 
   return (

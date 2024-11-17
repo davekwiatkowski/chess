@@ -7,7 +7,14 @@ import { IPiece } from '../types/IPiece';
 export const Piece: FC<{ piece: IPiece }> = ({ piece }) => {
   const [isHovering, setIsHovering] = useState(false);
 
-  const { setSelectedPiece, selectedPiece } = useContext(AppContext);
+  const {
+    setSelectedPiece,
+    selectedPiece,
+    movePiece,
+    capturePiece,
+    possibleMoves,
+    turn,
+  } = useContext(AppContext);
 
   const typeIndex = useMemo(() => {
     switch (piece.type) {
@@ -30,21 +37,50 @@ export const Piece: FC<{ piece: IPiece }> = ({ piece }) => {
     }
   }, [piece.type]);
 
-  const handleMouseEnter = () => {
+  const handleMouseEnter = useCallback(() => {
+    if (
+      piece.color !== turn &&
+      !possibleMoves.some((v) => v.col === piece.col && v.row === piece.row)
+    ) {
+      return;
+    }
     setIsHovering(true);
-  };
+  }, [piece.col, piece.color, piece.row, possibleMoves, turn]);
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = useCallback(() => {
+    if (
+      piece.color !== turn &&
+      !possibleMoves.some((v) => v.col === piece.col && v.row === piece.row)
+    ) {
+      return;
+    }
     setIsHovering(false);
-  };
+  }, [piece.col, piece.color, piece.row, possibleMoves, turn]);
 
   const handleClick = useCallback(() => {
+    if (piece.color !== turn) {
+      if (
+        possibleMoves.some((v) => v.col === piece.col && v.row === piece.row)
+      ) {
+        capturePiece(piece);
+        movePiece(piece.row, piece.col, piece);
+      }
+      return;
+    }
     if (selectedPiece === piece) {
       setSelectedPiece(null);
     } else {
       setSelectedPiece(piece);
     }
-  }, [selectedPiece, piece]);
+  }, [
+    selectedPiece,
+    piece,
+    setSelectedPiece,
+    capturePiece,
+    movePiece,
+    possibleMoves,
+    turn,
+  ]);
 
   const isSelectedPiece = useMemo(() => {
     return selectedPiece === piece;

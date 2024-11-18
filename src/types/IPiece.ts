@@ -7,4 +7,5 @@ export interface IPiece {
   col: number;
   isMoved?: boolean;
   isCaptured?: boolean;
+  isUnderAttack?: boolean;
 }

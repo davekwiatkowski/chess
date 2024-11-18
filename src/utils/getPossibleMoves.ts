@@ -8,13 +8,18 @@ import {
   ROOK_DIRS,
 } from '../constants';
 import { IPiece } from '../types/IPiece';
-import { isAttack } from './isAttack';
+import { checkAttack } from './checkAttack';
+import { isPieceAtTile } from './isPieceAtTile';
 import { isValidMove } from './isValidMove';
 
 export function getPossibleMoves(
   pieces: IPiece[],
   selectedPiece: IPiece | null | undefined
 ): { row: number; col: number }[] {
+  for (const p of pieces) {
+    p.isUnderAttack = false; // reset attacks
+  }
+
   const result: { row: number; col: number }[] = [];
   if (!selectedPiece) {
     return result;
@@ -22,6 +27,7 @@ export function getPossibleMoves(
   if (selectedPiece.isCaptured) {
     return result;
   }
+
   const sign = selectedPiece.color === Color.Black ? 1 : -1;
   switch (selectedPiece.type) {
     case PieceType.Pawn:
@@ -29,13 +35,31 @@ export function getPossibleMoves(
         if (selectedPiece.isMoved && r === 2) break;
         const row = selectedPiece.row + sign * r;
         const col = selectedPiece.col;
-        if (!isValidMove(pieces, selectedPiece, row, col)) break;
-        if (pieces.find((v) => v.row === row && v.col === col && !v.isCaptured))
-          break; // cannot attack head on
-        result.push({
-          row,
-          col,
-        });
+        if (
+          isValidMove(pieces, selectedPiece, row, col) &&
+          !isPieceAtTile(pieces, row, col) // cannot attack head on
+        ) {
+          result.push({
+            row,
+            col,
+          });
+        }
+        // TODO: Add pawn en-passant
+        if (r === 1) {
+          if (checkAttack(pieces, selectedPiece, row, col - 1)) {
+            result.push({
+              row,
+              col: col - 1,
+            });
+          }
+          if (checkAttack(pieces, selectedPiece, row, col + 1)) {
+            result.push({
+              row,
+              col: col + 1,
+            });
+          }
+          // TODO: Add pawn gets to end of board
+        }
       }
       break;
     case PieceType.Rook:
@@ -48,7 +72,7 @@ export function getPossibleMoves(
             row,
             col,
           });
-          if (isAttack(pieces, selectedPiece, row, col)) break;
+          if (checkAttack(pieces, selectedPiece, row, col)) break;
         }
       }
       break;
@@ -62,7 +86,7 @@ export function getPossibleMoves(
             row,
             col,
           });
-          if (isAttack(pieces, selectedPiece, row, col)) break;
+          if (checkAttack(pieces, selectedPiece, row, col)) break;
         }
       }
       break;
@@ -75,6 +99,8 @@ export function getPossibleMoves(
           row,
           col,
         });
+        checkAttack(pieces, selectedPiece, row, col);
+        // TODO: Add castling
       }
       break;
     case PieceType.Queen:
@@ -87,7 +113,7 @@ export function getPossibleMoves(
             row,
             col,
           });
-          if (isAttack(pieces, selectedPiece, row, col)) break;
+          if (checkAttack(pieces, selectedPiece, row, col)) break;
         }
       }
       break;
@@ -100,6 +126,7 @@ export function getPossibleMoves(
           row,
           col,
         });
+        checkAttack(pieces, selectedPiece, row, col);
       }
       break;
     default:

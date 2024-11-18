@@ -91,9 +91,11 @@ export const Piece: FC<{ piece: IPiece }> = ({ piece }) => {
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className={`w-16 flex items-center justify-center h-16 
+      className={`w-16 flex items-center justify-center h-16 cursor-pointer
         ${isHovering ? 'border-4 border-sky-300' : ''} 
-        ${isSelectedPiece ? 'bg-sky-300' : 'bg-none'} cursor-pointer`}
+        ${isSelectedPiece ? 'bg-sky-300' : ''} 
+        ${piece.isUnderAttack ? 'outline-2 outline outline-red-500' : ''} 
+      `}
     >
       <SpriteImage
         spriteSheet="/chess-sprites.png"

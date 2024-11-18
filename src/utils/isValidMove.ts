@@ -16,7 +16,7 @@ export function isValidMove(
     return false;
   }
   if (
-    pieces.find(
+    pieces.some(
       (v) =>
         v.row === row &&
         v.col === col &&

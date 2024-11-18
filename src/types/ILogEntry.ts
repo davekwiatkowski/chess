@@ -5,4 +5,5 @@ export interface ILogEntry {
   row: number;
   col: number;
   captured?: IPiece;
+  isCheck?: boolean;
 }
